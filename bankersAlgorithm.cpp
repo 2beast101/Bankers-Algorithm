@@ -8,6 +8,7 @@ void fillMax();
 void fillAvail();
 void calcNeeded();
 bool isSafe();
+void printRes();
 void parseFile(std::string fileName);
 
 struct resources {
@@ -22,18 +23,34 @@ resources data;
 std::vector<int> safeSeq, allNums; // allNums is filled in calcNeeded();
 
 int main(int argc, char* argv[]) {
-    parseFile("data.txt");
+
+    if (argc > 1) {
+        parseFile(argv[1]);
+        processes = 5;
+        numberResources = 3;
+        // printRes();
+        calcNeeded();
+    } else {
+        std::cout << "File not provided, enter values manually." << std::endl;
+        fillAlloc();
+        fillMax();
+        fillAvail();
+        // all values are entered
+        calcNeeded();
+    }
     
-    fillAlloc();
-    fillMax();
-    fillAvail();
-    // all values are entered
-    calcNeeded();
-    isSafe();
+
+    if (isSafe()) {
     std::cout << "Safe sequence: ";
     for(int i = 0; i < safeSeq.size(); ++i ) {
-        std::cout << safeSeq[i] << std::endl;
+        std::cout << "P" << safeSeq[i] << ",";
     }
+        std::cout << std::endl;
+    } else {
+        std::cout << "No safe sequence." << std::endl;
+    }
+    
+    
     
 
     return 0;
@@ -41,23 +58,21 @@ int main(int argc, char* argv[]) {
 
 
 bool isSafe() {
-    bool break_;
-    std::cout << allNums.size() << std::endl;
+    bool break_ = false;
     while (allNums.size() > 0) {
-        for (std::vector<int>::iterator i = allNums.begin(); i != allNums.end(); ++i ) {
+        for (int i = 0; i < allNums.size(); ++i ) {
+            break_ = false;
             for (int j = 0; j < numberResources; ++j ) {
-                if (data.need[*i][j] > data.available[j]) {
+                if (data.need[allNums[i]][j] > data.available[j]) {
                     break_ = true;
                 }
             }
             if (!break_) {
                 for (int z = 0; z < numberResources; ++z ) {
-                    data.available[z] = data.available[z] + data.all[*i][z];
-                    std::cout << data.available[z];
+                    data.available[z] = data.available[z] + data.all[allNums[i]][z];
                 }
-                safeSeq.push_back(*i);
-                allNums.erase(i);
-                std::cout << std::endl;
+                safeSeq.push_back(allNums[i]);
+                allNums.erase(allNums.begin()+i);
             }
         }
     }
@@ -76,7 +91,7 @@ void calcNeeded() {
 
 void fillAvail() {
     for (int i = 0; i < numberResources; ++i ) {
-        std::cout << "Enter resources for " << i << ": "; std::cin >> data.available[i];
+        std::cout << "Enter available resources, index: " << i << ": "; std::cin >> data.available[i];
     }
 }
 
@@ -106,12 +121,33 @@ void parseFile(std::string fileName) {
         exit(1);
     }
     char ch = file.get();
-    int numCommas = 0; 
-    int numBreaks = 0;
+    int nums = 0;
+    int row = 0, col = 0;
     while (!file.eof()) {
-        if (ch != ',') {
-
+        if (ch != '\n' && ch != ' ') {
+            col = nums % 3;
+            if (nums % 3 == 0) ++row;
+            if (row == 6) row = 0;
+            if (nums < 15) {
+                data.all[row-1][col] = int(ch)-int('0');
+            } else if (nums < 30) {
+                data.max[row][col] = int(ch)-int('0');
+            } else {
+                data.available[col] = int(ch)-int('0');
+            }
+            ++nums;
         }
+        
         file.get(ch);
+    }
+}
+
+void printRes() {
+    for (int i = 0; i < processes; ++i) {
+        std::cout << "\nMAX FOR P" << i << ": ";
+        for (int j = 0; j < numberResources; ++j) {
+            std::cout << data.max[i][j];
+        }
+        std::cout << std::endl;
     }
 }
