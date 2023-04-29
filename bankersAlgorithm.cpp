@@ -3,12 +3,12 @@
 #include <string.h>
 #include <vector>
 
-void fillAlloc();
-void fillMax();
-void fillAvail();
-void calcNeeded();
-bool isSafe();
-void printRes();
+void fillAlloc(); // Prompts user, fills allocation vector
+void fillMax(); // prompts user, fills max vector
+void fillAvail(); // prompts user, fills available vector
+void calcNeeded(); // subtracts max from allocation, to get needed for each vector
+bool isSafe(); // determines if a safe sequence is possible, and prints that sequence
+void printRes(); // Used for testing, prints some of resources to console.
 void parseFile(std::string fileName);
 
 struct resources {
@@ -59,21 +59,26 @@ int main(int argc, char* argv[]) {
 
 bool isSafe() {
     bool break_ = false;
+    int check = 0; // to check if safe sequence is impossible
     while (allNums.size() > 0) {
         for (int i = 0; i < allNums.size(); ++i ) {
             break_ = false;
             for (int j = 0; j < numberResources; ++j ) {
                 if (data.need[allNums[i]][j] > data.available[j]) {
+                    check++;
                     break_ = true;
                 }
-            }
+            } // if a safe sequence exists, break_ will remain false.
             if (!break_) {
                 for (int z = 0; z < numberResources; ++z ) {
                     data.available[z] = data.available[z] + data.all[allNums[i]][z];
                 }
                 safeSeq.push_back(allNums[i]);
                 allNums.erase(allNums.begin()+i);
-            }
+            } // moves the process that is safe into a separate vector, and erases it from the original vector
+            if (check == (processes * numberResources)) return false;
+            
+            
         }
     }
     return true;
