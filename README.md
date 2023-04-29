@@ -16,6 +16,7 @@ Then, the available on the last line, with the same format as before.
 
 
 Screenshot of after execution:
+![Screenshot 2023-04-28 230033](https://user-images.githubusercontent.com/15059428/235280747-990488a2-d225-4852-9d52-ded02424144c.png)
 
 
 
